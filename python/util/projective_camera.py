@@ -76,6 +76,8 @@ class ProjectiveCamera:
         for i in range(3):
             P[i][3] = -self.camera_center[i]
 
-        r = cv.Rodrigues(self.rotation)
+        r, _ = cv.Rodrigues(self.rotation)
+        #print(r)
+        #print('{} {} {}'.format(self.K.shape, r.shape, P.shape))
         self.P = self.K @ r @ P
 

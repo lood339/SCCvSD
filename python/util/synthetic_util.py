@@ -3,24 +3,40 @@ import cv2 as cv
 
 import random
 from rotation_util import RotationUtil
+from projective_camera import ProjectiveCamera
 
 class SyntheticUtil:
     @staticmethod
-    def camera_to_edge_image(cameras, model_points, model_line_segment, dist_h=72, dist_w=128):
+    def camera_to_edge_image(camera_data, model_points, model_line_segment, im_h, im_w, line_width=4):
         """
-        1. project (line) model images using cameras
-        2. compute distance map
-        :param cameras: N * 9
-        :param model_points: N * 2
-        :param model_line_segment: index
-        :param dist_h: image resolution
-        :param dist_w:
-        :return: N * 1 * H * W
+         1. project (line) model images using the camera
+        :param camera_data: 9 numbers
+        :param model_points:
+        :param model_line_segment:
+        :param im_h:
+        :param im_w:
+        :return: H * W
         """
-        assert cameras.shape[1] == 9
+        assert camera_data.shape[0] == 9
 
-        n = cameras.shape[0]
-        pass
+        #def __init__(self, fl, u, v, cc, rod_rot):
+        u, v, fl = camera_data[0:3]
+        rod_rot = camera_data[3:6]
+        cc = camera_data[6:9]
+
+        camera = ProjectiveCamera(fl, u, v, cc, rod_rot)
+        im = np.zeros((im_h, im_w, 3), dtype=np.uint8)
+        n = model_line_segment.shape[0]
+        color = (255,255,255)
+        for i in range(n):
+            idx1, idx2 = model_line_segment[i][0], model_line_segment[i][1]
+            p1, p2 = model_points[idx1], model_points[idx2]
+            q1 = camera.project_3d(p1[0], p1[1], 0.0, 1.0)
+            q2 = camera.project_3d(p2[0], p2[1], 0.0, 1.0)
+            q1 = np.rint(q1).astype(np.int)
+            q2 = np.rint(q2).astype(np.int)
+            cv.line(im, tuple(q1), tuple(q2), color, thickness=line_width)
+        return im
 
     @staticmethod
     def generate_ptz_cameras(cc_statistics,
@@ -68,84 +84,16 @@ class SyntheticUtil:
         return cameras
 
 
+def ut_camera_to_edge_image():
+    import scipy.io as sio
+    camera_data = np.asarray([640,	360, 3081.976880,
+                              1.746393,	 -0.321347,	 0.266827,
+                              52.816224,	 -54.753716, 19.960425])
+    data = sio.loadmat('../../data/worldcup2014.mat')
+    model_points = data['points']
+    model_line_index = data['line_segment_index']
+    im = SyntheticUtil.camera_to_edge_image(camera_data, model_points, model_line_index, 720, 1280, line_width=4)
+    cv.imwrite('debug_train_16.jpg', im)
 
-
-
-"""
-function [im] = project_model_bw_fast(camera, model_points, model_line_segment)
-% [im] = project_model_bw_fast(camera, model_points, model_line_segment)
-% project a 2D field model to the image space (black and white)
-% It is faster as using OpenCV, output one-channel edge image
-% assume image size is 1280 x 720, line thickness 4
-% im: rgb_image with overlaied lines
-% camera: 9 camera parameters, (u, v, focal_length, Rx, Rx, Rz, Cx, Cy, Cz)
-%         (Rx, Rx, Rz): is Rodrigues angle, (Cx, Cy, Cz) unit in meter
-% model_points: N x 2 matrix, model world coordinate in meter
-% model_line_segment: line segment index, start from 1
-% example: 
-% camera = [640.000000	 360.000000	 2986.943295	 1.367497	 -1.082443	 0.980122	 -16.431519	 14.086604	 5.580546];
-% load('soccer_field_model.mat');
-% model_points = points;
-% model_line_segment = line_segment_index + 1;
-% project_model(camera, model_points, model_line_segment);
-assert(length(camera) == 9);
-assert(size(model_points, 2) == 2);
-assert(size(model_line_segment, 2) == 2);
-
-
-% 
-u = camera(1);
-v = camera(2);
-f = camera(3);
-rod = camera(4:6); % Rodrigues angle
-c = camera(7:9)';
-
-K = [f, 0, u; 0, f, v; 0, 0, 1];
-rotation = rotationVectorToMatrix(rod)'; % camera rotation to world point rotation
-
-N = size(model_points, 1);
-image_points = zeros(N, 2);
-
-for i = [1:N]
-    p = [model_points(i, 1), model_points(i, 2), 0.0]';
-    % translate, rotate, then project
-    p = K*rotation*(p - c);
-    x = p(1)/p(3);
-    y = p(2)/p(3);  % p(3) may be zero
-    image_points(i, :) = [x, y];    
-end
-
-im_w = 1280;
-im_h = 720;
-% remove part of linesegment
-model_line_segment = in_image_linesegment(image_points, model_line_segment, im_w, im_h);
-im = drawLineSegment(image_points, model_line_segment, im_w, im_h, 4);
-end
-"""
-
-"""
-function [dist_map] = camera_to_distance_map(cameras, ...
-                        model_points, model_line_segment, ...
-                        dist_h, dist_w)
-%[dist_map] = camera_to_distance_map(cameras, n_channel, ...
-%    model_points, model_line_segment)
-% default resolution [72, 128]
-
-assert(size(cameras, 2) == 9);
-
-
-N = size(cameras, 1);
-
-dist_map = zeros(dist_h, dist_w, 1, N);
-
-for i = [1:N]
-    im = project_model_bw_fast(cameras(i, :), model_points, model_line_segment);
-    im = imresize(im, [dist_h, dist_w]);
-    dist_map(:,:,:,i) = distanceTransform(im);
-    if mod(i, 5000) == 0
-        i/N
-    end
-end
-
-end
-"""
+if __name__ == '__main__':
+    ut_image()
