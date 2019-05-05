@@ -7,19 +7,20 @@ from projective_camera import ProjectiveCamera
 
 class SyntheticUtil:
     @staticmethod
-    def camera_to_edge_image(camera_data, model_points, model_line_segment, im_h, im_w, line_width=4):
+    def camera_to_edge_image(camera_data,
+                             model_points, model_line_segment,
+                             im_h, im_w, line_width=4):
         """
-         1. project (line) model images using the camera
+         Project (line) model images using the camera
         :param camera_data: 9 numbers
         :param model_points:
         :param model_line_segment:
         :param im_h:
         :param im_w:
-        :return: H * W
+        :return: H * W * 3 OpenCV image
         """
         assert camera_data.shape[0] == 9
 
-        #def __init__(self, fl, u, v, cc, rod_rot):
         u, v, fl = camera_data[0:3]
         rod_rot = camera_data[3:6]
         cc = camera_data[6:9]
@@ -46,6 +47,8 @@ class SyntheticUtil:
                              u, v,
                              camera_num):
         """
+        Input: PTZ camera base information
+        Output: randomly sampled camera parameters
         :param cc_statistics:
         :param fl_statistics:
         :param roll_statistics:
@@ -56,7 +59,6 @@ class SyntheticUtil:
         :param camera_num:
         :return: N * 9 cameras
         """
-
         cc_mean, cc_std, cc_min, cc_max = cc_statistics
         fl_mean, fl_std, fl_min, fl_max = fl_statistics
         roll_mean, roll_std, roll_min, roll_max = roll_statistics
@@ -86,6 +88,7 @@ class SyntheticUtil:
 
 def ut_camera_to_edge_image():
     import scipy.io as sio
+    # this camera is from UoT world cup dataset, train, index 16
     camera_data = np.asarray([640,	360, 3081.976880,
                               1.746393,	 -0.321347,	 0.266827,
                               52.816224,	 -54.753716, 19.960425])
@@ -95,5 +98,21 @@ def ut_camera_to_edge_image():
     im = SyntheticUtil.camera_to_edge_image(camera_data, model_points, model_line_index, 720, 1280, line_width=4)
     cv.imwrite('debug_train_16.jpg', im)
 
+def ut_generate_ptz_cameras():
+    import scipy.io as sio
+    data = sio.loadmat('../../data/soccer_camera_center_focal_length.mat')
+    print(data.keys())
+
+    """
+    cc_mean, cc_std, cc_min, cc_max = cc_statistics
+    fl_mean, fl_std, fl_min, fl_max = fl_statistics
+    roll_mean, roll_std, roll_min, roll_max = roll_statistics
+    pan_min, pan_max = pan_range
+    tilt_min, tilt_max = tilt_range
+    """
+    
+
+
 if __name__ == '__main__':
-    ut_image()
+    #ut_camera_to_edge_image()
+    ut_generate_ptz_cameras()
