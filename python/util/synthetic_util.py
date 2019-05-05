@@ -93,10 +93,11 @@ def ut_camera_to_edge_image():
                               1.746393,	 -0.321347,	 0.266827,
                               52.816224,	 -54.753716, 19.960425])
     data = sio.loadmat('../../data/worldcup2014.mat')
+    print(data.keys())
     model_points = data['points']
     model_line_index = data['line_segment_index']
     im = SyntheticUtil.camera_to_edge_image(camera_data, model_points, model_line_index, 720, 1280, line_width=4)
-    cv.imwrite('debug_train_16.jpg', im)
+    #cv.imwrite('debug_train_16.jpg', im)
 
 def ut_generate_ptz_cameras():
     import scipy.io as sio
@@ -110,9 +111,9 @@ def ut_generate_ptz_cameras():
     pan_min, pan_max = pan_range
     tilt_min, tilt_max = tilt_range
     """
-    
+
 
 
 if __name__ == '__main__':
-    #ut_camera_to_edge_image()
-    ut_generate_ptz_cameras()
+    ut_camera_to_edge_image()
+    #ut_generate_ptz_cameras()
