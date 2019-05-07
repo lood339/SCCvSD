@@ -15,8 +15,8 @@ class SyntheticUtil:
         :param camera_data: 9 numbers
         :param model_points:
         :param model_line_segment:
-        :param im_h:
-        :param im_w:
+        :param im_h: 1280
+        :param im_w: 720
         :return: H * W * 3 OpenCV image
         """
         assert camera_data.shape[0] == 9
@@ -65,9 +65,10 @@ class SyntheticUtil:
         pan_min, pan_max = pan_range
         tilt_min, tilt_max = tilt_range
 
-        camera_centers = np.random.normal(cc_mean, cc_std, camera_num)
-        focal_lengths = np.random.normal(fl_mean, fl_std, camera_num)
-        rolls = np.random.normal(roll_mean, roll_std, camera_num)
+        # generate random values from the distribution
+        camera_centers = np.random.normal(cc_mean, cc_std, (camera_num, 3))
+        focal_lengths = np.random.normal(fl_mean, fl_std, (camera_num, 1))
+        rolls = np.random.normal(roll_mean, roll_std, (camera_num, 1))
         pans = np.random.uniform(pan_min, pan_max, camera_num)
         tilts = np.random.uniform(tilt_min, tilt_max, camera_num)
 
@@ -77,13 +78,55 @@ class SyntheticUtil:
                 RotationUtil.rotate_x_axis(-90)
             pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pans[i], tilts[i])
             rotation = pan_tilt_rotation @ base_rotation
-            rot_vec = cv.Rodrigues(rotation)
+            rot_vec, _ = cv.Rodrigues(rotation)
 
-            cameras[i][0] = focal_lengths[i]
-            cameras[i][1], cameras[i][2] = u, v
+            cameras[i][0], cameras[i][1] = u, v
+            cameras[i][2] = focal_lengths[i]
             cameras[i][3], cameras[i][4], cameras[i][5] = rot_vec[0], rot_vec[1], rot_vec[2]
             cameras[i][6], cameras[i][7], cameras[i][8] = camera_centers[i][0], camera_centers[i][1], camera_centers[i][2]
         return cameras
+
+    @staticmethod
+    def sample_positive_pair(pp, cc, base_roll, pan, tilt, fl,
+                             pan_std, tilt_std, fl_std):
+        """
+        Sample a camera that has similar pan-tilt-zoom with (pan, tilt, fl).
+        The pair of the camera will be used a positive-pair in the training
+        :param pp: [u, v]
+        :param cc: camera center
+        :param base_roll: camera base, roll angle
+        :param pan:
+        :param tilt:
+        :param fl:
+        :param pan_std:
+        :param tilt_std:
+        :param fl_std:
+        :return:
+        """
+
+        def get_nearby_data(d, std):
+            assert std > 0
+            delta = np.random.uniform(-0.5, 0.5, 1) * std
+            return d + delta
+
+        pan = get_nearby_data(pan, pan_std)
+        tilt = get_nearby_data(tilt, tilt_std)
+        fl = get_nearby_data(fl, fl_std)
+
+        camera = np.zeros(9)
+        camera[0] = pp[0]
+        camera[1] = pp[1]
+        camera[2] = fl
+
+        base_rotation = RotationUtil.rotate_y_axis(0) @ RotationUtil.rotate_y_axis(base_roll) @\
+                        RotationUtil.rotate_x_axis(-90)
+        pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pan, tilt)
+        rotation = pan_tilt_rotation @ base_rotation
+        rot_vec = RotationUtil.rotation_matrix_to_Rodrigues(rotation)
+        camera[3: 6] = rot_vec.squeeze()
+        camera[6: 9] = cc
+
+        return camera
 
 
 def ut_camera_to_edge_image():
@@ -100,20 +143,100 @@ def ut_camera_to_edge_image():
     #cv.imwrite('debug_train_16.jpg', im)
 
 def ut_generate_ptz_cameras():
+    """
+    Generate PTZ camera demo:  Section 3.1
+    """
     import scipy.io as sio
-    data = sio.loadmat('../../data/soccer_camera_center_focal_length.mat')
+    data = sio.loadmat('../../data/worldcup_dataset_camera_parameter.mat')
     print(data.keys())
 
-    """
-    cc_mean, cc_std, cc_min, cc_max = cc_statistics
-    fl_mean, fl_std, fl_min, fl_max = fl_statistics
-    roll_mean, roll_std, roll_min, roll_max = roll_statistics
-    pan_min, pan_max = pan_range
-    tilt_min, tilt_max = tilt_range
-    """
+    cc_mean = data['cc_mean']
+    cc_std = data['cc_std']
+    cc_min = data['cc_min']
+    cc_max = data['cc_max']
+    cc_statistics = [cc_mean, cc_std, cc_min, cc_max]
 
+    fl_mean = data['fl_mean']
+    fl_std = data['fl_std']
+    fl_min = data['fl_min']
+    fl_max = data['fl_max']
+    fl_statistics = [fl_mean, fl_std, fl_min, fl_max]
+    roll_statistics = [0, 0.2, -1.0, 1.0]
+
+    pan_range = [-35.0, 35.0]
+    tilt_range = [-15.0, -5.0]
+    num_camera = 10
+
+    cameras = SyntheticUtil.generate_ptz_cameras(cc_statistics,
+                                                 fl_statistics,
+                                                 roll_statistics,
+                                                 pan_range, tilt_range,
+                                                 1280/2.0, 720/2.0,
+                                                 num_camera)
+
+    data = sio.loadmat('../../data/worldcup2014.mat')
+    model_points = data['points']
+    model_line_index = data['line_segment_index']
+    for i in range(num_camera):
+        cam = cameras[i]
+        print(cam[0:3])
+        im = SyntheticUtil.camera_to_edge_image(cam, model_points, model_line_index, 720, 1280, line_width=4)
+        cv.imshow('image from camera', im)
+        cv.waitKey(1000)
+    cv.destroyAllWindows()
+
+def ut_sample_positive_pair():
+    """
+    def sample_positive_pair(pp, cc, base_roll, pan, tilt, fl,
+                             pan_std, tilt_std, fl_std):
+    """
+    import scipy.io as sio
+    data = sio.loadmat('../../data/worldcup_dataset_camera_parameter.mat')
+    cc_mean = data['cc_mean']
+
+    pp = np.asarray([1280.0/2, 720.0/2])
+    cc = cc_mean
+    base_roll = np.random.uniform(-0.5, 0.5)
+    pan = 10.0
+    tilt = -10.0
+    fl = 3800
+    pan_std = 1.5
+    tilt_std = 0.75
+    fl_std = 30
+
+    camera = np.zeros(9)
+    camera[0] = 640.000000
+    camera[1] = 360.000000
+    camera[2] = fl
+
+    base_rotation = RotationUtil.rotate_y_axis(0) @ \
+                    RotationUtil.rotate_z_axis(base_roll) @ \
+                    RotationUtil.rotate_x_axis(-90)
+    pan_tilt_rotation = RotationUtil.pan_y_tilt_x(pan, tilt)
+    rotation = pan_tilt_rotation @ base_rotation
+    rot_vec, _ = cv.Rodrigues(rotation)
+    camera[3: 6] = rot_vec.squeeze()
+    camera[6: 9] = cc
+
+
+    pivot = camera
+
+    positive = SyntheticUtil.sample_positive_pair(pp, cc, base_roll, pan, tilt, fl,
+                                                  pan_std, tilt_std, fl_std)
+
+    data = sio.loadmat('../../data/worldcup2014.mat')
+    print(data.keys())
+    model_points = data['points']
+    model_line_index = data['line_segment_index']
+
+    im1 = SyntheticUtil.camera_to_edge_image(pivot, model_points, model_line_index, 720, 1280)
+    im2 = SyntheticUtil.camera_to_edge_image(positive, model_points, model_line_index, 720, 1280)
+    cv.imshow("pivot", im1)
+    cv.imshow("positive", im2)
+    cv.waitKey(5000)
 
 
 if __name__ == '__main__':
-    ut_camera_to_edge_image()
+    #ut_camera_to_edge_image()
     #ut_generate_ptz_cameras()
+    ut_sample_positive_pair()

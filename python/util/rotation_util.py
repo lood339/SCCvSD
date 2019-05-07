@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+import cv2 as cv
+
 class RotationUtil:
     @staticmethod
     def rotate_x_axis(angle):
@@ -67,4 +69,11 @@ class RotationUtil:
         r_pan = RotationUtil.rotate_y_axis(pan)
         m = r_tilt @ r_pan
         return m
+
+    #  rot_vec, _ = cv.Rodrigues(rotation)
+    @staticmethod
+    def rotation_matrix_to_Rodrigues(m):
+        assert m.shape[0] == 3 and m.shape[1] == 3
+        rot_vec, _ = cv.Rodrigues(m)
+        return rot_vec
 
