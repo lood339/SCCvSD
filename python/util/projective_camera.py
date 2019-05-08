@@ -65,6 +65,16 @@ class ProjectiveCamera:
         assert q[2] != 0.0
         return (q[0]/q[2], q[1]/q[2])
 
+    def get_homography(self):
+        """
+        homography matrix from the projection matrix
+        :return:
+        """
+        h = np.zeros((3, 3))
+        h = self.P[:, [0, 1,3]]
+        return h
+
+
     def _recompute_matrix(self):
         """
         :return:
