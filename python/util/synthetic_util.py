@@ -9,14 +9,14 @@ class SyntheticUtil:
     @staticmethod
     def camera_to_edge_image(camera_data,
                              model_points, model_line_segment,
-                             im_h, im_w, line_width=4):
+                             im_h=720, im_w=1280, line_width=4):
         """
          Project (line) model images using the camera
         :param camera_data: 9 numbers
         :param model_points:
         :param model_line_segment:
-        :param im_h: 1280
-        :param im_w: 720
+        :param im_h: 720
+        :param im_w: 1280
         :return: H * W * 3 OpenCV image
         """
         assert camera_data.shape[0] == 9
@@ -125,9 +125,49 @@ class SyntheticUtil:
         rot_vec = RotationUtil.rotation_matrix_to_Rodrigues(rotation)
         camera[3: 6] = rot_vec.squeeze()
         camera[6: 9] = cc
-
         return camera
 
+    @staticmethod
+    def generate_database_images(pivot_cameras, positive_cameras,
+                                 model_points, model_line_segment):
+
+        """
+        Default size 180 x 320 (h x w)
+        Generate database image for siamese network training
+        :param pivot_cameras:
+        :param positive_cameras:
+        :return:
+        """
+        n = pivot_cameras.shape[0]
+        assert n == positive_cameras.shape[0]
+
+        # N x 1 x H x W pivot images
+        # N x 1 x H x w positive image
+        # negative pairs are randomly selected
+        im_h, im_w = 180, 320
+        pivot_images = np.zeros((n, 1, im_h, im_w), dtype=np.uint8)
+        positive_images = np.zeros((n, 1, im_h, im_w), dtype=np.uint8)
+
+
+        for i in range(n):
+            piv_cam = pivot_cameras[i,:]
+            pos_cam = positive_cameras[i,:]
+
+            piv_im = SyntheticUtil.camera_to_edge_image(piv_cam, model_points, model_line_segment, 720, 1280, 4)
+            pos_im = SyntheticUtil.camera_to_edge_image(pos_cam, model_points, model_line_segment, 720, 1280, 4)
+
+            # to a smaller image
+            piv_im = cv.resize(piv_im, (im_w, im_h))
+            pos_im = cv.resize(pos_im, (im_w, im_h))
+
+            # to a gray image
+            piv_im = cv.cvtColor(piv_im, cv.COLOR_BGR2GRAY)
+            pos_im = cv.cvtColor(pos_im, cv.COLOR_RGB2GRAY)
+
+            pivot_images[i, 0,:,:] = piv_im
+            positive_images[i, 0, :,:] = pos_im
+
+        return (pivot_images, positive_images)
 
 def ut_camera_to_edge_image():
     import scipy.io as sio
@@ -140,6 +180,8 @@ def ut_camera_to_edge_image():
     model_points = data['points']
     model_line_index = data['line_segment_index']
     im = SyntheticUtil.camera_to_edge_image(camera_data, model_points, model_line_index, 720, 1280, line_width=4)
+    im = cv.cvtColor(im, cv.COLOR_RGB2GRAY)
+    print(im.shape)
     #cv.imwrite('debug_train_16.jpg', im)
 
 def ut_generate_ptz_cameras():
@@ -181,6 +223,7 @@ def ut_generate_ptz_cameras():
         cam = cameras[i]
         print(cam[0:3])
         im = SyntheticUtil.camera_to_edge_image(cam, model_points, model_line_index, 720, 1280, line_width=4)
+        print(im.shape)
         cv.imshow('image from camera', im)
         cv.waitKey(1000)
     cv.destroyAllWindows()
@@ -235,8 +278,35 @@ def ut_sample_positive_pair():
     cv.imshow("positive", im2)
     cv.waitKey(5000)
 
+def ut_generate_database_images():
+    import scipy.io as sio
+    data = sio.loadmat('../../data/worldcup_sampled_cameras.mat')
+    pivot_cameras = data['pivot_cameras']
+    positive_cameras = data['positive_cameras']
+
+    n = 10000
+    pivot_cameras = pivot_cameras[0:n, :]
+    positive_cameras = positive_cameras[0:n,:]
+
+    data = sio.loadmat('../../data/worldcup2014.mat')
+    print(data.keys())
+    model_points = data['points']
+    model_line_index = data['line_segment_index']
+
+    pivot_images, positive_images = SyntheticUtil.generate_database_images(pivot_cameras, positive_cameras,
+                                                             model_points, model_line_index)
+
+    #print('{} {}'.format(pivot_images.shape, positive_images.shape))
+    sio.savemat('train_data_10k.mat', {'pivot_images':pivot_images,
+                                      'positive_images':positive_images})
+
+
+
+
+
 
 if __name__ == '__main__':
     #ut_camera_to_edge_image()
     #ut_generate_ptz_cameras()
-    ut_sample_positive_pair()
+    #ut_sample_positive_pair()
+    ut_generate_database_images()

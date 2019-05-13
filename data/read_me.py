@@ -23,3 +23,18 @@ fl_std:
 fl_min:
 fl_max:
 """
+
+"""
+worldcup_sampled_cameras.mat
+It has about ~90K positive camera pairs
+pivot_cameras: N * 9, pivot cameras used in training
+positive_cameras: N * 9, positive camera with the pivot camera
+positive_ious: N * 9, IoU of each pivot and positive pair
+"""
+
+"""
+train_data_10k.mat
+It has 10k pivot and positive images.
+pivot_images: N x 1 x 180 x 320, [mean, std] = [0.0188 0.128] (after normalized to [0, 1])
+positive_images: N x 1 x 180 x 320
+"""
