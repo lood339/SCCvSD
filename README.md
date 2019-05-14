@@ -1,11 +1,13 @@
 # SCCvSD
 Sports Camera Calibration via Synthetic Data
 
-This is implementation of paper "Sports Camera Calibration via Synthetic Data"
+The original implemenation uses Matlab. This is a re-implementation.
+
+
+The two-GAN code: https://github.com/lood339/pytorch-two-GAN
 
 Link: https://arxiv.org/abs/1810.10658
 
-The original implemenation uses Matlab.
 
 We are working on cleaning the code...
 

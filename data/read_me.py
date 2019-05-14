@@ -38,3 +38,11 @@ It has 10k pivot and positive images.
 pivot_images: N x 1 x 180 x 320, [mean, std] = [0.0188 0.128] (after normalized to [0, 1])
 positive_images: N x 1 x 180 x 320
 """
+
+"""
+database_camera_feature.mat
+It has about ~90K (camera, feature) pairs
+cameras: N x 9
+features: N x 16, deep feature
+
+"""
