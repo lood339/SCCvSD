@@ -40,6 +40,23 @@ class SyntheticUtil:
         return im
 
     @staticmethod
+    def distance_transform(img):
+        """
+        :param img: OpenCV Image
+        :return:
+        """
+        h, w, c = img.shape
+        if c == 3:
+            img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        else:
+            assert c == 1
+
+        _, binary_im = cv.threshold(img, 10, 255, cv.THRESH_BINARY_INV)
+
+        dist_im = cv.distanceTransform(binary_im, cv.DIST_L2, cv.DIST_MASK_PRECISE)
+        return dist_im
+
+    @staticmethod
     def generate_ptz_cameras(cc_statistics,
                              fl_statistics,
                              roll_statistics,
@@ -180,8 +197,8 @@ def ut_camera_to_edge_image():
     model_points = data['points']
     model_line_index = data['line_segment_index']
     im = SyntheticUtil.camera_to_edge_image(camera_data, model_points, model_line_index, 720, 1280, line_width=4)
-    im = cv.cvtColor(im, cv.COLOR_RGB2GRAY)
-    print(im.shape)
+    #im = cv.cvtColor(im, cv.COLOR_RGB2GRAY)
+    #print(im.shape)
     #cv.imwrite('debug_train_16.jpg', im)
 
 def ut_generate_ptz_cameras():
@@ -300,13 +317,19 @@ def ut_generate_database_images():
     sio.savemat('train_data_10k.mat', {'pivot_images':pivot_images,
                                       'positive_images':positive_images})
 
+def ut_distance_transform():
+    im = cv.imread('../../data/16_edge_image.jpg')
+    dist_im = SyntheticUtil.distance_transform(im)
 
-
-
+    dist_im[dist_im > 255] = 255
+    dist_im = dist_im.astype(np.uint8)
+    cv.imshow('distance image', dist_im)
+    cv.waitKey()
 
 
 if __name__ == '__main__':
     #ut_camera_to_edge_image()
     #ut_generate_ptz_cameras()
     #ut_sample_positive_pair()
-    ut_generate_database_images()
+    #ut_generate_database_images()
+    ut_distance_transform()

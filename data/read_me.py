@@ -44,5 +44,13 @@ database_camera_feature.mat
 It has about ~90K (camera, feature) pairs
 cameras: N x 9
 features: N x 16, deep feature
+"""
 
+"""
+testset_feature.mat
+186 testing images in the World Cup dataset
+Deep feature, edge image and distance image of the testing set
+edge_distances: (180, 320, 1, 186)
+edge_map: (720, 1280, 1, 186)
+features: (16, 186)
 """
