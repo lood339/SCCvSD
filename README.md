@@ -11,4 +11,6 @@ Link: https://arxiv.org/abs/1810.10658
 
 A demo script in testing phase: python/demo.py
 
-
+To do:
+1. sample pivot and positive camera pose pairs. 
+2. train siamese network and extract feature. 
