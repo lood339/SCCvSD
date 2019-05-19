@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 
 import random
-from rotation_util import RotationUtil
-from projective_camera import ProjectiveCamera
+from .rotation_util import RotationUtil
+from .projective_camera import ProjectiveCamera
 
 class SyntheticUtil:
     @staticmethod
@@ -55,6 +55,16 @@ class SyntheticUtil:
 
         dist_im = cv.distanceTransform(binary_im, cv.DIST_L2, cv.DIST_MASK_PRECISE)
         return dist_im
+
+    @staticmethod
+    def find_transform(im_src, im_dst):
+        warp = np.eye(3, dtype=np.float32)
+        criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 50, 0.001)
+        try:
+            _, warp = cv.findTransformECC(im_src, im_dst, warp, cv.MOTION_HOMOGRAPHY, criteria)
+        except:
+            print('Warning: find transform failed. Set warp as identity')
+        return warp
 
     @staticmethod
     def generate_ptz_cameras(cc_statistics,
