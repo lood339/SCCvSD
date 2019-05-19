@@ -9,6 +9,6 @@ The two-GAN code: https://github.com/lood339/pytorch-two-GAN
 Link: https://arxiv.org/abs/1810.10658
 
 
-We are working on cleaning the code...
+A demo script in testing phase: python/demo.py
 
 

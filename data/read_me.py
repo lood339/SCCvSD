@@ -54,3 +54,10 @@ edge_distances: (180, 320, 1, 186)
 edge_map: (720, 1280, 1, 186)
 features: (16, 186)
 """
+
+"""
+UoT_soccer: annotation from "Sports Field Localization Via Deep Structured Models"
+http://www.cs.toronto.edu/~namdar/
+train_val.mat
+test.mat
+"""
