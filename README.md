@@ -9,10 +9,15 @@ The two-GAN code: https://github.com/lood339/pytorch-two-GAN
 Link: https://arxiv.org/abs/1810.10658
 
 Install required package via conda:
+
 conda install -c anaconda numpy
+
 conda install -c anaconda scipy
+
 conda install -c conda-forge pyflann
+
 conda install -c conda-forge opencv 
+
 
 A demo script in testing phase: python/demo.py
 
