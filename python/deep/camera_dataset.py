@@ -94,7 +94,6 @@ class CameraDataset(Dataset):
 
 def ut():
     import scipy.io as sio
-    import numpy as np
     import torchvision.transforms as transforms
     data = sio.loadmat('../../data/train_data_10k.mat')
     pivot_images = data['pivot_images']
