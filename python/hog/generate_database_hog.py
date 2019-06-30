@@ -1,5 +1,6 @@
 # HoG feature for nearest neighbor search
-
+import sys
+sys.path.append('../')
 
 import cv2 as cv
 import scipy.io as sio
@@ -16,7 +17,7 @@ n_bins = 9
 
 
 im_h, im_w = 180, 320
-save_file = 'database_caemra_feature_HoG.mat'
+save_file = 'database_camera_feature_HoG.mat'
 
 hog = cv.HOGDescriptor(win_size, block_size, block_stride, cell_size, n_bins)
 

@@ -2,6 +2,7 @@ import pyflann
 import scipy.io as sio
 import numpy as np
 import cv2 as cv
+import time
 
 from util.synthetic_util import SyntheticUtil
 from util.iou_util import IouUtil
@@ -45,7 +46,6 @@ else:
     edge_map = data['edge_map']
     test_features = data['features']
 
-print('database, testset feature {} {}'.format(database_features.shape, test_features.shape))
 # World Cup soccer template
 data = sio.loadmat('../data/worldcup2014.mat')
 model_points = data['points']
@@ -61,6 +61,7 @@ annotation = data['annotation']
 gt_h = annotation[0][query_index][1]  # ground truth
 
 
+state_time = time.time()
 # Step 2: retrieve a camera using deep features
 flann = pyflann.FLANN()
 result, _ = flann.nn(database_features, test_features[query_index], 1, algorithm="kdtree", trees=8, checks=64)
@@ -81,7 +82,7 @@ retrieved_camera = ProjectiveCamera(fl, u, v, cc, rod_rot)
 retrieved_h = IouUtil.template_to_image_homography_uot(retrieved_camera, template_h, template_w)
 
 iou_1 = IouUtil.iou_on_template_uot(gt_h, retrieved_h)
-print('retrieved homogrpahy IoU {}'.format(iou_1))
+print('retrieved homogrpahy IoU {:.3f}'.format(iou_1))
 
 retrieved_image = SyntheticUtil.camera_to_edge_image(retrieved_camera_data, model_points, model_line_index,
                                                im_h=720, im_w=1280, line_width=4)
@@ -109,6 +110,7 @@ h_retrieved_to_query = SyntheticUtil.find_transform(retrieved_dist, query_dist)
 
 refined_h = h_retrieved_to_query@retrieved_h
 iou_2 = IouUtil.iou_on_template_uot(gt_h, refined_h)
-print('refined homogrpahy IoU {}'.format(iou_2))
+print('refined homogrpahy IoU {:.3f}'.format(iou_2))
+print('takes time {:.3f} seconds'.format(time.time()-state_time))
 
 
