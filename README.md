@@ -11,7 +11,10 @@ Install required package via conda:
 conda install -c anaconda numpy  
 conda install -c anaconda scipy  
 conda install -c conda-forge pyflann  
-conda install -c conda-forge opencv   
+conda install -c conda-forge opencv
+
+If no GPU:
+conda install pytorch-cpu torchvision-cpu -c pytorch    
 
 
 **Pre-processing:**  

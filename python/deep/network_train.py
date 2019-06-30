@@ -29,7 +29,6 @@ parser.add_argument('--train-file', required=True, type=str, help='a .mat file')
 parser.add_argument('--cuda-id', required=True, type=int, default=0, help='CUDA ID 0, 1, 2, 3')
 
 parser.add_argument('--lr', required=True, type=float, help='learning rate')
-parser.add_argument('--step-size', required=True, type=int, help='learning rate drop step size')
 parser.add_argument('--num-epoch', required=True, type=int, help='epoch number')
 parser.add_argument('--batch-size', required=True, type=int)
 parser.add_argument('--num-batch', required=True, type=int, help='training sample number')
@@ -43,7 +42,7 @@ train_file = args.train_file
 cuda_id = args.cuda_id
 
 learning_rate = args.lr
-step_size = args.step_size
+#step_size = args.step_size
 num_epoch = args.num_epoch
 
 batch_size = args.batch_size
@@ -102,11 +101,18 @@ net = SiameseNetwork(branch)
 
 criterion = ContrastiveLoss(margin=1.0)
 
-optimizer = optim.SGD(filter(lambda p: p.requires_grad, net.parameters()),
-                      lr=learning_rate,
-                      momentum=0.9,
-                      weight_decay=0.0001)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
+"""
+torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+"""
+
+#optimizer = optim.SGD(filter(lambda p: p.requires_grad, net.parameters()),
+#                      lr=learning_rate,
+#                      momentum=0.9,
+#                      weight_decay=0.0001)
+optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()),
+                       lr=learning_rate,
+                       weight_decay=0.000001)
+#scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
 
 
 # 3: setup computation device
@@ -138,7 +144,7 @@ def save_checkpoint(state, filename):
 pdist = nn.PairwiseDistance(p=2)
 for epoch in range(num_epoch):
     net.train()
-    scheduler.step()
+    #scheduler.step()
     train_loader._sample_once()
 
     running_loss = 0.0
@@ -149,6 +155,7 @@ for epoch in range(num_epoch):
     negative_dist = 0.0
     for i in range(len(train_loader)):
         x1, x2, label = train_loader[i]
+        print('x1 x2 label shape {} {} {}'.format(x1.shape, x2.shape, label.shape))
         x1, x2, label = x1.to(device), x2.to(device), label.to(device)
         feat1, feat2 = net(x1, x2)
 
