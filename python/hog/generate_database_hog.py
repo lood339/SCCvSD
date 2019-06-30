@@ -21,13 +21,13 @@ save_file = 'database_caemra_feature_HoG.mat'
 hog = cv.HOGDescriptor(win_size, block_size, block_stride, cell_size, n_bins)
 
 # database camera
-data = sio.loadmat('../data/worldcup_sampled_cameras.mat')
+data = sio.loadmat('../../data/worldcup_sampled_cameras.mat')
 database_cameras = data['pivot_cameras']
 
 n, _ = database_cameras.shape
 
 # World Cup soccer template
-data = sio.loadmat('../data/worldcup2014.mat')
+data = sio.loadmat('../../data/worldcup2014.mat')
 model_points = data['points']
 model_line_index = data['line_segment_index']
 
@@ -53,12 +53,3 @@ sio.savemat(save_file, {'features':database_features,
                         'cameras':database_cameras})
 
 print('save to file: {}'.format(save_file))
-
-
-def ut():
-    im_name = '../../data/16_edge_image.jpg'
-    im = cv.imread(im_name, 0)
-    im = cv.resize(im, (320, 180))
-
-    feature = hog.compute(im)
-    print('feature shape {}'.format(feature.shape))

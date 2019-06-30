@@ -10,12 +10,12 @@ from util.projective_camera import ProjectiveCamera
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--feature-type', required=True, type=str, default='deep', help='deep or hog')
-parser.add_argument('--query-index', required=True, type=int, help='0 - [0, 186)')
+parser.add_argument('--feature-type', required=True, type=str, default='deep', help='deep or HoG')
+parser.add_argument('--query-index', required=True, type=int, default=0, help='[0, 186)')
 
 args = parser.parse_args()
 feature_type = args.feature_type
-assert feature_type == 'deep' or feature_type == 'hog'
+assert feature_type == 'deep' or feature_type == 'HoG'
 query_index = args.query_index
 assert 0 <= query_index < 186
 
@@ -30,7 +30,9 @@ if feature_type == 'deep':
     database_features = data['features']
     database_cameras = data['cameras']
 else:
-    pass
+    data = sio.loadmat('../data/features/database_camera_feature_HoG.mat')
+    database_features = data['features']
+    database_cameras = data['cameras']
 
 # testing edge image from two-GAN
 if feature_type == 'deep':
@@ -39,8 +41,11 @@ if feature_type == 'deep':
     test_features = data['features']
     test_features = np.transpose(test_features)
 else:
-    pass
+    data = sio.loadmat('../data/features/testset_feature_HoG.mat')
+    edge_map = data['edge_map']
+    test_features = data['features']
 
+print('database, testset feature {} {}'.format(database_features.shape, test_features.shape))
 # World Cup soccer template
 data = sio.loadmat('../data/worldcup2014.mat')
 model_points = data['points']
@@ -58,7 +63,7 @@ gt_h = annotation[0][query_index][1]  # ground truth
 
 # Step 2: retrieve a camera using deep features
 flann = pyflann.FLANN()
-result, _ = flann.nn(database_features, test_features[query_index], 1, algorithm="kdtree", trees=8, checks=32)
+result, _ = flann.nn(database_features, test_features[query_index], 1, algorithm="kdtree", trees=8, checks=64)
 retrieved_index = result[0]
 
 
