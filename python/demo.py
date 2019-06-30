@@ -7,21 +7,39 @@ from util.synthetic_util import SyntheticUtil
 from util.iou_util import IouUtil
 from util.projective_camera import ProjectiveCamera
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--feature-type', required=True, type=str, default='deep', help='deep or hog')
+parser.add_argument('--query-index', required=True, type=int, help='0 - [0, 186)')
+
+args = parser.parse_args()
+feature_type = args.feature_type
+assert feature_type == 'deep' or feature_type == 'hog'
+query_index = args.query_index
+assert 0 <= query_index < 186
+
 """
 Estimate an homogrpahy using edge images 
 """
 
 # Step 1: load data
 # database
-data = sio.loadmat('../data/features/database_camera_feature.mat')
-database_features = data['features']
-database_cameras = data['cameras']
+if feature_type == 'deep':
+    data = sio.loadmat('../data/features/database_camera_feature.mat')
+    database_features = data['features']
+    database_cameras = data['cameras']
+else:
+    pass
 
 # testing edge image from two-GAN
-data = sio.loadmat('../data/features/testset_feature.mat')
-edge_map = data['edge_map']
-test_features = data['features']
-test_features = np.transpose(test_features)
+if feature_type == 'deep':
+    data = sio.loadmat('../data/features/testset_feature.mat')
+    edge_map = data['edge_map']
+    test_features = data['features']
+    test_features = np.transpose(test_features)
+else:
+    pass
 
 # World Cup soccer template
 data = sio.loadmat('../data/worldcup2014.mat')
@@ -31,8 +49,6 @@ model_line_index = data['line_segment_index']
 template_h = 74  # yard, soccer template
 template_w = 115
 
-# change this number in [0, 186)
-query_index = 185
 
 # ground truth homography
 data = sio.loadmat('../data/UoT_soccer/test.mat')
