@@ -13,23 +13,38 @@ conda install -c anaconda scipy
 conda install -c conda-forge pyflann  
 conda install -c conda-forge opencv
 
-If no GPU:
+If no GPU:  
 conda install pytorch-cpu torchvision-cpu -c pytorch    
 
 
-**Pre-processing:**  
+**Pre-processing:** 
+1. Generate HoG feature (optional)  
 cd python/hog  
 python generate_test_feature_hog.py  
 python generate_database_hog.py  
 
 Put two generated .mat files to ./data/features
 
+2. train a network to generate deep feature (optional)   
+Here, we use 10K cameras for an example. 
+cd python/deep  
+python generate_train_data.py  
+Put the generated .mat file to ./data
+
+bash network_train.sh  
+It generates a 'network.pth' file.  
+
+ 
+
+
+
 
 
 **A demo script in testing phase:**  
 python/demo.py  
 Example 1: use deep feature  
-python demo.py --feature-type 'deep' --query-index 0
+python demo.py --feature-type 'deep' --query-index 0  
+It uses pre-trained-deep-features.
 
 Example 2: use HoG feature  
 python demo.py --feature-type 'HoG' --query-index 0
