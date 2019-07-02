@@ -3,8 +3,8 @@ python network_train.py \
 --cuda-id 0 \
 --lr 0.01 \
 --num-epoch 100 \
---batch-size 16 \
---num-batch 16 \
+--batch-size 64 \
+--num-batch 128 \
 --random-seed 0 \
 --resume '' \
 --save-name 'network.pth'

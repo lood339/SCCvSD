@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
-import os
 
+import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--train-file', required=True, type=str, help='a .mat file')
 parser.add_argument('--cuda-id', required=True, type=int, default=0, help='CUDA ID 0, 1, 2, 3')
 
-parser.add_argument('--lr', required=True, type=float, help='learning rate')
+parser.add_argument('--lr', required=True, type=float, default=0.01, help='learning rate')
 parser.add_argument('--num-epoch', required=True, type=int, help='epoch number')
 parser.add_argument('--batch-size', required=True, type=int)
 parser.add_argument('--num-batch', required=True, type=int, help='training sample number')
