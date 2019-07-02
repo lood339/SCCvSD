@@ -32,7 +32,8 @@ class CameraDataset(Dataset):
         self.negative_index = []
         self.is_train = is_train
 
-        self._sample_once()
+        if self.is_train:
+            self._sample_once()
 
         if not self.is_train:
             # in testing, loop over all pivot cameras
@@ -170,9 +171,6 @@ def ut():
         print('{}'.format(x.shape))
         break
     print('train, test dataset size {} {}'.format(len(train_dataset), len(test_dataset)))
-
-
-
 
 
 if __name__ == '__main__':

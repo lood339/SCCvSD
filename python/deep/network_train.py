@@ -89,10 +89,11 @@ data_transform = transforms.Compose(
 )
 
 train_loader = CameraDataset(pivot_images,
-                        positive_images,
-                        batch_size,
-                        num_batch,
-                        data_transform)
+                             positive_images,
+                             batch_size,
+                             num_batch,
+                             data_transform,
+                             is_train=True)
 print('Randomly paired data are generated.')
 
 # 2: load network
