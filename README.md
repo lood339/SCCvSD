@@ -33,11 +33,8 @@ Put the generated .mat file to ./data
 
 bash network_train.sh  
 It generates a 'network.pth' file.  
-
- 
-
-
-
+bash network_train.sh  
+It generates a .mat file which has 'features' and 'cameras'.  
 
 
 **A demo script in testing phase:**  
