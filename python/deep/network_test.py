@@ -19,7 +19,7 @@ from camera_dataset import CameraDataset
 """
 Extract feature from a siamese network
 input: network and edge images
-output: feature
+output: feature and camera
 """
 
 parser = argparse.ArgumentParser()
@@ -56,6 +56,7 @@ except FileNotFoundError:
 
 pivot_images = data['pivot_images']
 positive_images = data['positive_images']  # not actually used
+cameras = data['cameras']
 
 n, c, h, w = pivot_images.shape
 assert (h, w) == (180, 320)
@@ -104,4 +105,7 @@ with torch.no_grad():
 
 features = np.vstack((features))
 print('feature dimension {}'.format(features.shape))
-print("Todo: need camera parameters")
+
+sio.savemat(save_file, {'features':features,
+                        'cameras':cameras})
+print('save to {}'.format(save_file))

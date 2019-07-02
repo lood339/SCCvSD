@@ -8,9 +8,12 @@ data = sio.loadmat('../../data/worldcup_sampled_cameras.mat')
 pivot_cameras = data['pivot_cameras']
 positive_cameras = data['positive_cameras']
 
-n = 10000
+n = 10000  # change this number to set training dataset
+save_file = 'train_data_10k.mat'
 pivot_cameras = pivot_cameras[0:n, :]
 positive_cameras = positive_cameras[0:n,:]
+
+
 
 data = sio.loadmat('../../data/worldcup2014.mat')
 print(data.keys())
@@ -21,6 +24,7 @@ pivot_images, positive_images = SyntheticUtil.generate_database_images(pivot_cam
                                                          model_points, model_line_index)
 
 #print('{} {}'.format(pivot_images.shape, positive_images.shape))
-sio.savemat('train_data_10k.mat', {'pivot_images':pivot_images,
+sio.savemat(save_file, {'pivot_images':pivot_images,
                                   'positive_images':positive_images,
                                    'cameras':pivot_cameras})
+print('save training file to {}'.format(save_file))
