@@ -19,35 +19,34 @@ conda install pytorch-cpu torchvision-cpu -c pytorch
 
 **Pre-processing:** 
 1. Generate HoG feature (optional)  
-cd python/hog  
-python generate_test_feature_hog.py  
-python generate_database_hog.py  
+`cd python/hog`
+`python generate_test_feature_hog.py`  
+`python generate_database_hog.py`  
 
 Put two generated .mat files to ./data/features
 
 2. train a network to generate deep feature (optional)   
-Here, we use 10K cameras for an example. 
-cd python/deep  
-python generate_train_data.py  
-Put the generated .mat file to ./data
-
-bash network_train.sh  
+Here, we use 10K cameras for an example.   
+`cd python/deep ` 
+`python generate_train_data.py  `
+Put the generated .mat file to ./data  
+`bash network_train.sh`  
 It generates a 'network.pth' file.  
-bash network_train.sh  
+`bash network_train.s`h  
 It generates a .mat file which has 'features' and 'cameras'.  
 
 
 **A demo script in testing phase:**  
 python/demo.py  
 Example 1: use deep feature  
-python demo.py --feature-type 'deep' --query-index 0  
+`python demo.py --feature-type 'deep' --query-index 0 ` 
 It uses pre-trained-deep-features.
 
 Example 2: use HoG feature  
-python demo.py --feature-type 'HoG' --query-index 0
+`python demo.py --feature-type 'HoG' --query-index 0`
 
 To do:  
-1. train siamese network and extract deep feature. 
+1. Refine train siamese network and extract deep feature. 
 2. Accuracy of HoG feature is lower than 
    the matlab implementation (using vlfeat) 
 
