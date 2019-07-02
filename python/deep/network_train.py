@@ -121,7 +121,7 @@ device = 'cpu'
 if torch.cuda.is_available():
     device = torch.device('cuda:{}'.format(cuda_id))
     net = net.to(device)
-    criterion = nn.CrossEntropyLoss().cuda(device)
+    criterion = ContrastiveLoss(margin=1.0).cuda(device)
     cudnn.benchmark = True
 
 print('computation device: {}'.format(device))
