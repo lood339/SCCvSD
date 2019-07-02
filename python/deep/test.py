@@ -1,19 +1,10 @@
 import scipy.io as sio
 import numpy as np
 
-data = sio.loadmat('../../data/features/testset_feature.mat')
+data = sio.loadmat('../../data/train_data_10k.mat')
 
-#sio.savemat('database_camera_feature.mat', {'cameras': cameras,
-#                                            'features':features})
-
-#print('{}'.format(data['edge_distances'].keys()))
-d1 = data['edge_distances']
-d2 = data['edge_map']
-d3 = data['features']
-
-
-
-print('{} {} {}'.format(d1.shape, d2.shape, d3.shape))
+print('{}'.format(data.keys()))
+print('{}'.format(data['positive_images'].shape))
 #cameras = data['cameras']
 #features = data['features']
 #print(data.keys())
