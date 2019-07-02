@@ -27,12 +27,12 @@ Put two generated .mat files to ./data/features
 
 2. train a network to generate deep feature (optional)   
 Here, we use 10K cameras for an example.   
-`cd python/deep ` 
-`python generate_train_data.py  `
+`cd python/deep`   
+`python generate_train_data.py`  
 Put the generated .mat file to ./data  
 `bash network_train.sh`  
 It generates a 'network.pth' file.  
-`bash network_train.s`h  
+`bash network_train.sh`    
 It generates a .mat file which has 'features' and 'cameras'.  
 
 
