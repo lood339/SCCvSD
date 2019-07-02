@@ -101,19 +101,9 @@ net = SiameseNetwork(branch)
 
 criterion = ContrastiveLoss(margin=1.0)
 
-"""
-torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-"""
-
-#optimizer = optim.SGD(filter(lambda p: p.requires_grad, net.parameters()),
-#                      lr=learning_rate,
-#                      momentum=0.9,
-#                      weight_decay=0.0001)
 optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()),
                        lr=learning_rate,
                        weight_decay=0.000001)
-#scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
-
 
 # 3: setup computation device
 if resume:
@@ -135,8 +125,6 @@ if torch.cuda.is_available():
 
 print('computation device: {}'.format(device))
 
-
-
 def save_checkpoint(state, filename):
     file_path = os.path.join(filename)
     torch.save(state, file_path)
@@ -144,7 +132,6 @@ def save_checkpoint(state, filename):
 pdist = nn.PairwiseDistance(p=2)
 for epoch in range(num_epoch):
     net.train()
-    #scheduler.step()
     train_loader._sample_once()
 
     running_loss = 0.0
@@ -153,9 +140,10 @@ for epoch in range(num_epoch):
 
     positive_dist = 0.0
     negative_dist = 0.0
+
     for i in range(len(train_loader)):
         x1, x2, label = train_loader[i]
-        print('x1 x2 label shape {} {} {}'.format(x1.shape, x2.shape, label.shape))
+
         x1, x2, label = x1.to(device), x2.to(device), label.to(device)
         feat1, feat2 = net(x1, x2)
 
