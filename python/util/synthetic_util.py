@@ -1,9 +1,8 @@
 import numpy as np
 import cv2 as cv
 
-import random
-from .rotation_util import RotationUtil
-from .projective_camera import ProjectiveCamera
+from util.rotation_util import RotationUtil
+from util.projective_camera import ProjectiveCamera
 
 class SyntheticUtil:
     @staticmethod
@@ -325,7 +324,8 @@ def ut_generate_database_images():
 
     #print('{} {}'.format(pivot_images.shape, positive_images.shape))
     sio.savemat('train_data_10k.mat', {'pivot_images':pivot_images,
-                                      'positive_images':positive_images})
+                                      'positive_images':positive_images,
+                                       'cameras':pivot_cameras})
 
 def ut_distance_transform():
     im = cv.imread('../../data/16_edge_image.jpg')
@@ -341,5 +341,5 @@ if __name__ == '__main__':
     #ut_camera_to_edge_image()
     #ut_generate_ptz_cameras()
     #ut_sample_positive_pair()
-    #ut_generate_database_images()
-    ut_distance_transform()
+    ut_generate_database_images()
+    #ut_distance_transform()
