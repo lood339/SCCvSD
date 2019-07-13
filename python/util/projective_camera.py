@@ -70,7 +70,6 @@ class ProjectiveCamera:
         homography matrix from the projection matrix
         :return:
         """
-        h = np.zeros((3, 3))
         h = self.P[:, [0, 1,3]]
         return h
 

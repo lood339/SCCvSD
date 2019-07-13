@@ -50,10 +50,9 @@ class IouUtil:
 
     @staticmethod
     def iou_on_template_uot(gt_h, pred_h, im_h=720, im_w=1280, template_h=74, template_w=115):
-        im = np.ones((im_h, im_w), dtype=np.uint8) * 255
-        gt_mask = IouUtil.homography_warp(np.linalg.inv(gt_h), im, (template_h, template_w), (0))
-        pred_mask = IouUtil.homography_warp(np.linalg.inv(pred_h), im, (template_h, template_w), (0))
-
+        im = np.ones((im_h, im_w, 3), dtype=np.uint8) * 255
+        gt_mask = IouUtil.homography_warp(np.linalg.inv(gt_h), im, (template_w, template_h), (0))
+        pred_mask = IouUtil.homography_warp(np.linalg.inv(pred_h), im, (template_w, template_h), (0))
 
         val_intersection = (gt_mask != 0) * (pred_mask != 0)
         val_union = (gt_mask != 0) + (pred_mask != 0)
@@ -111,8 +110,20 @@ def ut_iou_on_template_uot():
     iou = IouUtil.iou_on_template_uot(h1, h2)
     print('{}'.format(iou))
 
+def ut_iou_on_template_uot_2():
+    h1 = np.asarray(([[4.00507552e+01,  1.21935050e+01, -3.82721376e+03],
+                      [-6.99948565e-01,  1.55281386e+00,  4.43575038e+02],
+                      [6.88083482e-03, -1.23378011e-02,  1.00000000e+00]]))
+    h2 = np.asarray(([[4.01621885e+01,  1.56120602e+01, -3.90765553e+03],
+                      [-1.43462664e+00,  2.09267670e+00,  5.39727302e+02],
+                      [7.76998497e-03, -1.18067686e-02,  1.00000000e+00]]))
+
+    iou = IouUtil.iou_on_template_uot(h1, h2)
+    print('{}'.format(iou))
+
 
 if __name__ == '__main__':
     #ut_homography_warp()
     #ut_template_to_image_homography_uot()
-    ut_iou_on_template_uot()
+    #ut_iou_on_template_uot()
+    ut_iou_on_template_uot_2()

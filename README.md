@@ -38,12 +38,22 @@ It generates a .mat file which has 'features' and 'cameras'.
 
 **A demo script in testing phase:**  
 python/demo.py  
+python/demo_uot.py   # contributed by jiangwei221     
 Example 1: use deep feature  
 `python demo.py --feature-type 'deep' --query-index 0 ` 
 It uses pre-trained-deep-features.
 
 Example 2: use HoG feature  
 `python demo.py --feature-type 'HoG' --query-index 0`
+
+Example 3: run all testing example of UoT dataset
+`python demo_uot.py --feature-type 'deep'`  
+
+You wil get the result:  
+mean IoU for refined homogrpahy 0.948    
+median IoU for refined homogrpahy 0.964  
+Slightly better than the result in the paper.       
+
 
 To do:  
 1. Refine train siamese network and extract deep feature. 
