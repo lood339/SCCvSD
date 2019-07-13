@@ -58,7 +58,6 @@ Slightly better than the result in the paper.
 To do:  
 1. Refine train siamese network and extract deep feature. 
 2. Accuracy of HoG feature is lower than 
-   the matlab implementation (using vlfeat)  
-3. Bug: some examples (eg., query_index=7) gives 0 IoU.  
+   the matlab implementation (using vlfeat)
  
 
