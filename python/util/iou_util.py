@@ -99,7 +99,7 @@ def ut_template_to_image_homography_uot():
     h = IouUtil.template_to_image_homography_uot(camera)
     print('homography is {}'.format(h))
 
-def ut_iou_on_template_uot():
+def ut_iou_on_template_uot_1():
     h1 = np.asarray(([[9.08451931e+00, -5.31615622e+00,  8.38673068e+01],
      [2.95203351e-03,  5.52517432e-01,  8.30620388e+01],
     [-1.69828350e-03, - 2.94390308e-03, 3.94388114e-01]]))
@@ -121,9 +121,47 @@ def ut_iou_on_template_uot_2():
     iou = IouUtil.iou_on_template_uot(h1, h2)
     print('{}'.format(iou))
 
+def ut_generate_grassland_mask():
+    # An example of generate soft mask for grassland segmentation
+    import scipy.io as sio
+
+    index = 16 - 1   # image index from 1
+    data = sio.loadmat('../../data/UoT_soccer/train_val.mat')
+    annotation = data['annotation']
+    homo = annotation[0][index][1]  # ground truth homography
+
+    # step 1: generate a 'hard' grass mask
+    template_h = 74
+    template_w = 115
+    tempalte_im = np.ones((template_h, template_w, 1), dtype=np.uint8) * 255
+
+    grass_mask = IouUtil.homography_warp(homo, tempalte_im, (1280, 720), (0));
+    cv.imshow('grass mask', grass_mask)
+    cv.waitKey(0)
+
+    # step 2: generate a 'soft' grass mask
+    dist_threshold = 30  # change this value to change mask boundary
+    _, binary_im = cv.threshold(grass_mask, 10, 255, cv.THRESH_BINARY_INV)
+
+    dist_im = cv.distanceTransform(binary_im, cv.DIST_L2, cv.DIST_MASK_PRECISE)
+
+    dist_im[dist_im > dist_threshold] = dist_threshold
+    soft_mask = 1.0 - dist_im / dist_threshold  # normalize to [0, 1]
+
+    cv.imshow('soft mask', soft_mask)
+    cv.waitKey(0)
+
+    # step 3: soft mask on the original image
+    stacked_mask = np.stack((soft_mask,) * 3, axis=-1)
+    im = cv.imread('../../data/16.jpg')
+    soft_im = cv.multiply(stacked_mask, im.astype(np.float32)).astype(np.uint8)
+    cv.imshow('soft masked image', soft_im)
+    cv.waitKey(0)
+
 
 if __name__ == '__main__':
     #ut_homography_warp()
     #ut_template_to_image_homography_uot()
-    #ut_iou_on_template_uot()
-    ut_iou_on_template_uot_2()
+    #ut_iou_on_template_uot1()
+    #ut_iou_on_template_uot_2()
+    ut_generate_grassland_mask()
