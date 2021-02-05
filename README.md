@@ -32,7 +32,7 @@ Here, we use 10K cameras for an example.
 Put the generated .mat file to ./data  
 `bash network_train.sh`  
 It generates a 'network.pth' file.  
-`bash network_train.sh`    
+`bash network_test.sh`    
 It generates a .mat file which has 'features' and 'cameras'.  
 
 
