@@ -59,8 +59,10 @@ class SyntheticUtil:
     def find_transform(im_src, im_dst):
         warp = np.eye(3, dtype=np.float32)
         criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 50, 0.001)
+        # suggested by felibol
+        # https://github.com/lood339/SCCvSD/issues/8
         try:
-            _, warp = cv.findTransformECC(im_src, im_dst, warp, cv.MOTION_HOMOGRAPHY, criteria)
+            _, warp = cv.findTransformECC(im_src, im_dst, warp, cv.MOTION_HOMOGRAPHY, criteria, None, 5)
         except:
             print('Warning: find transform failed. Set warp as identity')
         return warp
